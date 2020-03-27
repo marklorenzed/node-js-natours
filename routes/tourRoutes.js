@@ -1,10 +1,14 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
 const authController = require('../controllers/authController');
+const reviewRouter = require('../routes/reviewRoutes');
 
 const router = express.Router();
 
 // router.param('id', checkID);
+
+// reroute to review router if it detects /tourId/reviews route
+router.use('/:tourId/reviews', reviewRouter);
 
 router
   .route('/top-5-cheap')
