@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModel');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
 // aliasing
 exports.aliasTopTours = (req, res, next) => {
@@ -91,6 +92,40 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     results: plan.length,
     data: {
       plan
+    }
+  });
+});
+
+// /tours-within?distance=233&center=-40,45&unit=mi
+// /tours-within/233/center/34.111745, -118.113491/unit/mi
+exports.getToursWithin = catchAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  // radius of earth in mi = 3963.2, 6378.1 in km
+  // convert distance into radians by dividing it to the radius of the earth
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+  if (!lat || !lng) {
+    next(
+      new AppError(
+        'Please provide latitude and longtitude in the format lat,lng.',
+        400
+      )
+    );
+  }
+
+  // in order to be able to perform geospatial queries,
+  // we need to first attribute an index to the field where the geospatial data that we are searching for is stored.
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      data: tours
     }
   });
 });
