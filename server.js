@@ -33,7 +33,16 @@ const server = app.listen(port, () => {
 process.on('unhandledRejection', err => {
   console.log('UNHANDLED REJECTION! Shutting down...');
   console.log(err.name, err.message);
+  // allows pending request to finish before closing
   server.close(() => {
     process.exit(1);
+  });
+});
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM RECEIVED. Shutting down gracefully');
+  // allows pending request to finish before closing
+  server.close(() => {
+    console.log('Process terminated!');
   });
 });
