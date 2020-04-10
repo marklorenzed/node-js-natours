@@ -162,11 +162,11 @@ tourSchema.pre(/^find/, function(next) {
   next();
 });
 
-tourSchema.post(/^find/, function(docs, next) {
-  //<-- all strings that starts with "find"
-  console.log(`query took ${Date.now() - this.start} milliseconds`);
-  next();
-});
+// tourSchema.post(/^find/, function(docs, next) {
+//   //<-- all strings that starts with "find"
+//   console.log(`query took ${Date.now() - this.start} milliseconds`);
+//   next();
+// });
 
 //AGGREGATION MIDDLEWARE
 // tourSchema.pre('aggregate', function(next) {
